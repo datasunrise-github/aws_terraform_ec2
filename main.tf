@@ -1,6 +1,14 @@
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # DataSunrise Cluster for Amazon Web Services
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.4.0"
+    }
+  }
+}
 
 data "aws_caller_identity" "current" {}
 
@@ -9,24 +17,24 @@ data "aws_region" "current" {}
 variable "regions_amis" {
   type    = map
   default = {	
-		"eu-central-1" 	 = "ami-047c4db5cd351995e"
-		"eu-north-1" 	 = "ami-0f59b0bb219e3e7d3"
-		"ap-south-1" 	 = "ami-05e8ef4d63b8d1130"
-		"eu-west-3" 	 = "ami-04aea945b7372aab5"
-		"eu-west-2" 	 = "ami-0deb82e633794261e"
-		"eu-west-1" 	 = "ami-053be37fec03b686b"
-		"ap-northeast-2" = "ami-0ce7a2c81da8ce1a0"
-		"me-south-1" 	 = "ami-0a8d23f557704d5a9"
-		"ap-northeast-1" = "ami-0d5fd7d5206999fef"
-		"sa-east-1" 	 = "ami-0aa81b9b780662952"
-		"ca-central-1"   = "ami-0e950ea29ec9c729b"
-		"ap-east-1" 	 = "ami-01a8829daa97f6669"
-		"ap-southeast-1" = "ami-0620543bc666410e9"
-		"ap-southeast-2" = "ami-033c54ae58ad89219"
-		"us-east-1" 	 = "ami-0cc76cbe3f3e18d56"
-		"us-east-2" 	 = "ami-0e011e623dda4bc7d"
-		"us-west-1" 	 = "ami-06ff9772539d4177e"
-		"us-west-2" 	 = "ami-0220c28c287f2bcac"
+		"eu-central-1" 	 = "ami-059e7de888f979c59"
+		"eu-north-1" 	 = "ami-05d3b9945245359d8"
+		"ap-south-1" 	 = "ami-0be8a821f57302217"
+		"eu-west-3" 	 = "ami-078699fa83eaf4493"
+		"eu-west-2" 	 = "ami-091f6996611623d2c"
+		"eu-west-1" 	 = "ami-0d2f636f26425fd59"
+		"ap-northeast-2" = "ami-0452c37e04a401eb4"
+		"me-south-1" 	 = "ami-0a1068a4f386f8a2e"
+		"ap-northeast-1" = "ami-007ce834e71a20c80"
+		"sa-east-1" 	 = "ami-0e6a53d638c54d22d"
+		"ca-central-1"   = "ami-05665243878372508"
+		"ap-east-1" 	 = "ami-032c615815c28c940"
+		"ap-southeast-1" = "ami-0fc2aecd8827a0fba"
+		"ap-southeast-2" = "ami-0b360815d8afd6e5e"
+		"us-east-1" 	 = "ami-03b7ab5fa663b2e20"
+		"us-east-2" 	 = "ami-0aeef753982e77b47"
+		"us-west-1" 	 = "ami-0f58cc2156c88b8d8"
+		"us-west-2" 	 = "ami-08f9c81f7ea5ec428"
   }
 }
 
@@ -121,7 +129,7 @@ resource "aws_db_instance" "dictionary_db" {
   identifier             = "${var.deployment_name}-dictionary"
   db_name                = var.dictionary_db_name
   engine                 = "Postgres"
-  engine_version         = "14.2"
+  engine_version         = "14"
   instance_class         = var.dictionary_db_class
   port                   = var.dictionary_db_port
   username               = var.db_username
@@ -141,7 +149,7 @@ resource "aws_db_instance" "audit_db" {
   identifier             = "${var.deployment_name}-audit"
   db_name                = var.audit_db_name
   engine                 = "Postgres"
-  engine_version         = "14.2"
+  engine_version         = "14"
   instance_class         = var.audit_db_class
   username               = var.db_username
   password               = var.db_password
@@ -368,14 +376,14 @@ resource "aws_lb" "ds_ntwrk_load_balancer" {
 
 resource "aws_autoscaling_attachment" "asg_attachment_webui_tg" {
   autoscaling_group_name = aws_autoscaling_group.ds_autoscaling_group.id
-  alb_target_group_arn   = aws_lb_target_group.nlb_webui_tg.arn
+  lb_target_group_arn   = aws_lb_target_group.nlb_webui_tg.arn
 
   depends_on = [aws_lb_target_group.nlb_webui_tg]
 }
 
 resource "aws_autoscaling_attachment" "asg_attachment_proxy_tg" {
   autoscaling_group_name = aws_autoscaling_group.ds_autoscaling_group.id
-  alb_target_group_arn   = aws_lb_target_group.nlb_proxy_tg.arn
+  lb_target_group_arn   = aws_lb_target_group.nlb_proxy_tg.arn
 
   depends_on = [aws_lb_target_group.nlb_proxy_tg]
 }
