@@ -55,9 +55,9 @@ variable "ds_admin_password" {
 }
 
 variable "ds_dist_url" {
-  description = "Url of the DataSunrise distribution package."
+  description = "(Optional) Url of the DataSunrise distribution package."
   #Make sure that this URL will be accessible from your VPC. You may also use the path to the DataSunrise build placed in your S3 bucket, however, make sure to modify the "S3AccessPolicy" section of this template.
-  default = "xxxxxxxxx"
+  default = ""
 }
 
 variable "bucket_key_arn" {

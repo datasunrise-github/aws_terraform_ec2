@@ -70,7 +70,7 @@ checkNeighbours()
   echo "Checking neigbour instances from my ASG..." >> $PREP_LOG
   TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
   INST_ID=`curl -s http://169.254.169.254/latest/meta-data/instance-id -H "X-aws-ec2-metadata-token: $TOKEN"`
-  local neighbours=$(aws ec2 describe-instances --filters Name=tag:aws:autoscaling:groupName,Values=${ASG_NAME} | python -c "import sys,json; [sys.stdout.write(str(inst)) for instance in json.load(sys.stdin)['Reservations'] for inst in instance['Instances'] if inst['InstanceId'] != '$INST_ID']")
+  local neighbours=$(aws ec2 describe-instances --filters Name=tag:aws:autoscaling:groupName,Values=${ASG_NAME} | python3 -c "import sys,json; [sys.stdout.write(str(inst)) for instance in json.load(sys.stdin)['Reservations'] for inst in instance['Instances'] if inst['InstanceId'] != '$INST_ID']")
   if [[ -z $neighbours ]]; then
     echo "No neighbours found, returning 0" >> $PREP_LOG
     return 0
@@ -182,7 +182,7 @@ runCleaningTask() {
     echo "Run node cleaning task..." >> $PREP_LOG
     loginAsAdmin
     if [ $RETVAL == 0 ]; then
-        local EC2_CLEANING_TASK_ID=`$DSROOT/cmdline/executecommand.sh arbitrary -function getPeriodicTaskList -jsonContent "{taskTypes:[18]}" | python -c "import sys, json; print json.load(sys.stdin)['data'][1][0]"`
+        local EC2_CLEANING_TASK_ID=`$DSROOT/cmdline/executecommand.sh arbitrary -function getPeriodicTaskList -jsonContent "{taskTypes:[18]}" | python3 -c "import sys, json; print(json.load(sys.stdin)['data'][1][0])"`
         $DSROOT/cmdline/executecommand.sh arbitrary -function executePeriodicTaskManually -jsonContent "{id:$EC2_CLEANING_TASK_ID}"
         RETVAL=$?
     fi
@@ -202,7 +202,7 @@ createRDSKeyGroup() {
 }
 configureJVM() {
     echo "Configuring JVM..." >> $PREP_LOG
-    jvmpath=`find / -name libjvm.so`
+    jvmpath=`find /usr/ -name libjvm.so`
     echo $jvmpath | tr " " "\n" | sed -e "s/libjvm.so//" > /etc/ld.so.conf.d/jvm.conf
     ldconfig
     echo "Configuring JVM result - $RETVAL" >> $PREP_LOG

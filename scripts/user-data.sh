@@ -3,6 +3,8 @@
 export PREP_LOG=/var/log/cloud-init-output.log
 echo "Configuration script has been started" >> $PREP_LOG
 sudo yum update -y -q
+yum install -y wget ipcalc
+pip3 install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz
 shopt -s extglob
 export CFS_BGN_TS=$(date +%s.%N)
 
