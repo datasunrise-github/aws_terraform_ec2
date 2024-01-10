@@ -13,12 +13,12 @@ variable "deployment_name" {
 # Virtual Machine Configuration
 # ------------------------------------------------------------------------------
 
-variable "ds_launch_configuration_ec2_keyname" {
+variable "ds_launch_temlate_ec2_keyname" {
   description = "Key pair to attach to every EC2 instance created"
   default     = "xxxxxxxxx"
 }
 
-variable "ds_launch_configuration_instance_type" {
+variable "ds_launch_template_instance_type" {
   description = "Instance type for DataSunrise instance"
   default     = "t3.medium"
 }
