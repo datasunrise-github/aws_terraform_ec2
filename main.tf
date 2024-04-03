@@ -16,7 +16,7 @@ data "aws_region" "current" {}
 
 variable "regions_amis" {
   type    = map
-  default = {	
+  default = {
 		"eu-central-1" = "ami-08c3327b9d223aaba"
 		"eu-north-1" = "ami-0bdaf5f5e0bbb1229"
 		"ap-south-1" = "ami-076cca3a5cb87885b"
@@ -35,6 +35,17 @@ variable "regions_amis" {
 		"us-east-2" = "ami-01e90efa85be23ec1"
 		"us-west-1" = "ami-0c29e7f181ec1988b"
 		"us-west-2" = "ami-06a795e53d650025a"
+		"ap-south-2" = "ami-01fbd620e2a2adb95"
+		"eu-south-1" = "ami-03bcc9460e61e6385"
+		"eu-south-2" = "ami-068d39156bf40006d"
+		"me-central-1" = "ami-0f24fbf01185cab4d"
+		"il-central-1" = "ami-0a8864c52614ef2b6"
+		"eu-central-2" = "ami-0efcdb1e33db2536d"
+		"af-south-1" = "ami-0a39f0c363efa441f"
+		"ap-northeast-3" = "ami-05204788ed82b9420"
+		"ca-west-1" = "ami-0bf6863e1d5d3b8d1"
+		"ap-southeast-3" = "ami-0b2edb3d4515cf336"
+		"ap-southeast-4" = "ami-0c2ff0942158374fa"
   }
 }
 
