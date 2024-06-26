@@ -208,19 +208,32 @@ configureJVM() {
     echo "Configuring JVM result - $RETVAL" >> $PREP_LOG
 }
 setcapAppFirewallCore() {
-      echo "Executing setcap on $DSROOT/AppFirewallCore" >> $PREP_LOG
-      DS_VER=$($DSROOT/AppBackendService VERSION)
-      DS_VER_MAJ=${!DS_VER:0:1}
-      DS_VER_MIN=${!DS_VER:2:1}
-      if [ $DS_VER_MAJ -ge 9 ]; then
+    echo "Executing setcap as required" >> $PREP_LOG
+    DS_VER=$($DSROOT/AppBackendService VERSION)
+    DS_VER_MAJ=${!DS_VER:0:1}
+    DS_VER_MIN=${!DS_VER:2:1}
+    if [ $DS_VER_MAJ -ge 9 ]; then
         echo "No setcap required for $DS_VER" >> $PREP_LOG
-      elif  [ $DS_VER_MAJ -eq 8 ] && [ $DS_VER_MIN -ge 1 ]; then
+    elif [ $DS_VER_MAJ -eq 8 ] && [ $DS_VER_MIN -ge 1 ]; then
         echo "No setcap required for $DS_VER" >> $PREP_LOG
-      else
-        echo "No setcap required for $DS_VER" >> $PREP_LOG
-        setcap 'cap_net_raw,cap_net_admin=eip cap_net_bind_service=ep' $DSROOT/AppFirewallCore
-      fi
-      echo "Execution finished. Exit code is - $?" >> $PREP_LOG
+    else
+        echo "Checking specific applications for setcap requirements" >> $PREP_LOG
+        if [[ -x "$DSROOT/AppFirewallCore_Sniffer" ]]; then
+            echo "Setting cap_net_raw and cap_net_admin for AppFirewallCore_Sniffer" >> $PREP_LOG
+            setcap 'cap_net_raw,cap_net_admin=eip' $DSROOT/AppFirewallCore_Sniffer
+        fi
+        
+        if [[ -x "$DSROOT/PortBinder" ]]; then
+            echo "Setting cap_net_bind_service for PortBinder" >> $PREP_LOG
+            setcap 'cap_net_bind_service=ep' $DSROOT/PortBinder
+        fi
+        
+        if [[ -x "$DSROOT/FreePortChecker" ]]; then
+            echo "Setting cap_net_bind_service for FreePortChecker" >> $PREP_LOG
+            setcap 'cap_net_bind_service=ep' $DSROOT/FreePortChecker
+        fi
+    fi
+    echo "Execution finished. Exit code is - $?" >> $PREP_LOG
 }
 setDictionaryLicense()
 {
