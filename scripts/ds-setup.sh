@@ -1,37 +1,48 @@
 #!/bin/bash
+setInstallationType() {
+    logBeginAct "Setting up Installation Type for AWS..."
+    LD_LIBRARY_PATH="$DSROOT":"$DSROOT/lib":$LD_LIBRARY_PATH AF_HOME="$AF_HOME" AF_CONFIG="$AF_HOME" $DSROOT/AppBackendService \
+        CHANGE_SETTINGS=1 InstallationType=1
+    RETVAL=$?
+    logEndAct "Setting up Installation Type for AWS result - $RETVAL"
+}
 resetAdminPassword() {
     echo "Reset Admin Password..." >> $PREP_LOG
     LD_LIBRARY_PATH="$DSROOT":"$DSROOT/lib":$LD_LIBRARY_PATH AF_HOME="$AF_HOME" AF_CONFIG="$AF_HOME" $DSROOT/AppBackendService SET_ADMIN_PASSWORD=$DSAdminPassword
     RETVAL=$?
     echo $INST_CAPT: Reset DS Admin Password result - $RETVAL
 }
-
 resetDict() {
     local HA_DBTYPE_LWR="`echo "$HA_DBTYPE" | tr '[:upper:]' '[:lower:]'`"
     local HA_DBPASSWD="`aws --region $EC2REGION secretsmanager get-secret-value --secret-id $CFDEPLOYMENTNAME-secret-config-password --query SecretString --output text`"
     echo "Reset Dictionary..." >> $PREP_LOG
-    LD_LIBRARY_PATH="$DSROOT":"$DSROOT/lib":$LD_LIBRARY_PATH AF_HOME="$AF_HOME" AF_CONFIG="$AF_HOME" $DSROOT/AppBackendService CLEAN_LOCAL_SETTINGS PRINT_PROGRESS REMOVE_SERVER_BY_HOST_PORT=1 DICTIONARY_TYPE="$HA_DBTYPE_LWR" DICTIONARY_HOST="$HA_DBHOST" DICTIONARY_PORT="$HA_DBPORT" DICTIONARY_DB_NAME="$HA_DBNAME" DICTIONARY_LOGIN="$HA_DBUSER" DICTIONARY_PASS="$HA_DBPASSWD" FIREWALL_SERVER_NAME="$DS_SERVER" FIREWALL_SERVER_HOST="$DS_HOST_PRIVIP" FIREWALL_SERVER_BACKEND_PORT=11000 FIREWALL_SERVER_CORE_PORT=11001 FIREWALL_SERVER_BACKEND_HTTPS=1 FIREWALL_SERVER_CORE_HTTPS=1
+    LD_LIBRARY_PATH="$DSROOT":"$DSROOT/lib":$LD_LIBRARY_PATH AF_HOME="$AF_HOME" AF_CONFIG="$AF_HOME" $DSROOT/AppBackendService CLEAN_LOCAL_SETTINGS PRINT_PROGRESS REMOVE_SERVER_BY_HOST_PORT=1 DICTIONARY_TYPE="$HA_DBTYPE_LWR" DICTIONARY_HOST="$HA_DBHOST" DICTIONARY_PORT="$HA_DBPORT" DICTIONARY_DB_NAME="$HA_DBNAME" DICTIONARY_LOGIN="$HA_DBUSER" DICTIONARY_AWS_SECRET="$CFDEPLOYMENTNAME-secret-config-password" FIREWALL_SERVER_NAME="$DS_SERVER" FIREWALL_SERVER_HOST="$DS_HOST_PRIVIP" FIREWALL_SERVER_BACKEND_PORT=11000 FIREWALL_SERVER_CORE_PORT=11001 FIREWALL_SERVER_BACKEND_HTTPS=1 FIREWALL_SERVER_CORE_HTTPS=1
     RETVAL=$?
     echo "Reset DS Dictionary to $HA_DBHOST:$HA_DBPORT result - $RETVAL" >> $PREP_LOG
 }
 resetAudit() {
-    local HA_AUPASSWD="`aws --region $EC2REGION secretsmanager get-secret-value --secret-id $CFDEPLOYMENTNAME-secret-config-password --query SecretString --output text`"
     echo "Reset Audit..." >> $PREP_LOG
-    LD_LIBRARY_PATH="$DSROOT":"$DSROOT/lib":$LD_LIBRARY_PATH AF_HOME="$AF_HOME" AF_CONFIG="$AF_HOME" $DSROOT/AppBackendService CHANGE_SETTINGS AuditDatabaseType="$HA_AUTYPE" AuditDatabaseHost="$HA_AUHOST" AuditDatabasePort="$HA_AUPORT" AuditDatabaseName="$HA_AUNAME" AuditLogin="$HA_AUUSER" AuditPassword="$HA_AUPASSWD"
+    LD_LIBRARY_PATH="$DSROOT":"$DSROOT/lib":$LD_LIBRARY_PATH AF_HOME="$AF_HOME" AF_CONFIG="$AF_HOME" $DSROOT/AppBackendService CHANGE_SETTINGS AuditDatabaseType="$HA_AUTYPE" AuditDatabaseHost="$HA_AUHOST" AuditDatabasePort="$HA_AUPORT" AuditDatabaseName="$HA_AUNAME" AuditLogin="$HA_AUUSER" AuditPasswordVaultType=2 AuditAWSSecretID="$CFDEPLOYMENTNAME-secret-config-password"
     RETVAL=$?
     echo "Reset DS Audit to $HA_AUHOST:$HA_AUPORT result - $RETVAL" >> $PREP_LOG
 }
 setupProxy() {
     local TRG_DBPASSWD="`aws --region $EC2REGION secretsmanager get-secret-value --secret-id $CFDEPLOYMENTNAME-secret-tdb-password --query SecretString --output text`"
-    echo "Setup proxy..." >> $PREP_LOG
+    echo "Setup DS proxy $TRG_INSTNAME for $TRG_DBHOST:$TRG_DBPORT" >> $PREP_LOG
     loginAsAdmin
     if [ $RETVAL == 0 ]; then
         local XTRA_ARGS=
-        if [ "$TRG_DBTYPE" = "Oracle" ]; then
+        local ENCRYPTION_ARGS=
+		if [ "$TRG_DBTYPE" = "Oracle" ]; then
             XTRA_ARGS="-instance $TRG_DBNAME"
+		elif [ "$TRG_DBTYPE" = "Elasticsearch" ]; then
+            XTRA_ARGS="-protocolType HTTP -ssl"
+        fi
+        if "$TRG_ENCRYPTION" && [[ "$TRG_DBTYPE" =~ ^(Aurora MySQL|MySQL|MariaDB|Cassandra|DB2|DynamoDB|MongoDB|Oracle|SAP HANA)$ ]]; then
+            ENCRYPTION_ARGS="-ssl"
         fi
         echo "addInstancePlus $TRG_INSTNAME..." >> $PREP_LOG
-        $DSROOT/cmdline/executecommand.sh addInstancePlus -name "$TRG_INSTNAME" $XTRA_ARGS -dbType "$TRG_DBTYPE" -dbHost "$TRG_DBHOST" -dbPort "$TRG_DBPORT" -database "$TRG_DBNAME" -login "$TRG_DBUSER" -password "$TRG_DBPASSWD" -proxyHost "$DS_HOST_PRIVIP" -proxyPort "$TRG_DBPORT" -savePassword ds -verifyCA true
+        $DSROOT/cmdline/executecommand.sh addInstancePlus -name "$TRG_INSTNAME" $XTRA_ARGS -dbType "$TRG_DBTYPE" -dbHost "$TRG_DBHOST" -dbPort "$TRG_DBPORT" -database "$TRG_DBNAME" -login "$TRG_DBUSER" -password "$TRG_DBPASSWD" -proxyHost "$DS_HOST_PRIVIP" -proxyPort "$TRG_DBPORT" -awsSmID "$CFDEPLOYMENTNAME-secret-tdb-password" -savePassword awssm $ENCRYPTION_ARGS
         RETVAL=$?
         if [ $RETVAL == 0 ]; then
             echo "Add AuditRuleAdmin..." >> $PREP_LOG
@@ -42,7 +53,7 @@ setupProxy() {
         fi
     fi
     RETVAL=$?
-    echo "Setup DS proxy $TRG_INSTNAME for $TDBHost:$TDBPort result - $RETVAL" >> $PREP_LOG
+    echo "Setup DS proxy $TRG_INSTNAME for $TRG_DBHOST:$TRG_DBPORT result - $RETVAL" >> $PREP_LOG
 }
 copyProxy()
 {

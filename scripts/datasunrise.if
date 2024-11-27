@@ -1,39 +1,36 @@
 ## <summary>policy for datasunrise</summary>
-
 ########################################
 ## <summary>
-##      Execute datasunrise_exec_t in the datasunrise domain.
+##	Execute datasunrise_exec_t in the datasunrise domain.
 ## </summary>
 ## <param name="domain">
 ## <summary>
-##      Domain allowed to transition.
+##	Domain allowed to transition.
 ## </summary>
 ## </param>
 #
 interface(`datasunrise_domtrans',`
-        gen_require(`
-                type datasunrise_t, datasunrise_exec_t;
-        ')
+	gen_require(`
+		type datasunrise_t, datasunrise_exec_t;
+	')
 
-        corecmd_search_bin($1)
-        domtrans_pattern($1, datasunrise_exec_t, datasunrise_t)
+	corecmd_search_bin($1)
+	domtrans_pattern($1, datasunrise_exec_t, datasunrise_t)
 ')
-
 ######################################
 ## <summary>
-##      Execute datasunrise in the caller domain.
+##	Execute datasunrise in the caller domain.
 ## </summary>
 ## <param name="domain">
-##      <summary>
-##      Domain allowed access.
-##      </summary>
+##	<summary>
+##	Domain allowed access.
+##	</summary>
 ## </param>
 #
 interface(`datasunrise_exec',`
-        gen_require(`
-                type datasunrise_exec_t;
+	gen_require(`
+		type datasunrise_exec_t;
 ')
-
-        corecmd_search_bin($1)
-        can_exec($1, datasunrise_exec_t)
+	corecmd_search_bin($1)
+	can_exec($1, datasunrise_exec_t)
 ')

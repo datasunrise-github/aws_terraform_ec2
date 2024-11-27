@@ -107,6 +107,7 @@ if [ "$RETVAL" != "96" ]; then
     onAbortSetup
     exit $RETVAL
 fi
+setInstallationType
 makeItMine
 cleanLogs
 service datasunrise start

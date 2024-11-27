@@ -11,6 +11,11 @@ type datasunrise_port_t;
 corenet_port(datasunrise_port_t)
 #permissive datasunrise_t;
 require {
+    type cloud_init_t;
+    type rngd_t;
+    type systemd_logind_t;
+    type useradd_t;
+    type groupadd_t;
 	type bin_t;
 	type cgroup_t;
 	type cluster_port_t;
@@ -41,6 +46,7 @@ require {
 	type user_home_dir_t;
 	type user_t;
 	type usr_t;
+    class dbus { send_msg };
 	class chr_file { getattr open read };
 	class dir { add_name create getattr open read remove_name rmdir search setattr write };
 	class file { append create execute execute_no_trans getattr ioctl lock open read setattr unlink write };

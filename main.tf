@@ -286,6 +286,7 @@ EOF
       TRG_DBPORT           = var.ds_instance_port
       TRG_DBNAME           = var.ds_instance_database_name
       TRG_DBUSER           = var.ds_instance_login
+      TRG_ENCRYPTION       = var.ds_tdb_encryption
       HA_DBTYPE            = "postgresql"
       HA_DBHOST            = aws_db_instance.dictionary_db.address
       HA_DBPORT            = aws_db_instance.dictionary_db.port

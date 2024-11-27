@@ -187,6 +187,11 @@ variable "ds_instance_password" {
   default     = "xxxxxxxxx"
 }
 
+variable "ds_tdb_encryption" {
+  description = "(Optional) Use Encryption when connecting to the database (supported only for Aurora MySQL, MySQL, MariaDB, Cassandra, DB2, DynamoDB, MongoDB, Oracle, SAP HANA)"
+  default     = ""
+}
+
 # ------------------------------------------------------------------------------
 # Auto Scaling Group Configuration
 # ------------------------------------------------------------------------------
