@@ -208,7 +208,7 @@ configureKeepAlive() {
 createRDSKeyGroup() {
     echo "Preparing RDS SSLKeyGroup..." >> $PREP_LOG
     loginAsAdmin
-    $DSROOT/cmdline/executecommand.sh addSslKeyGroup -ca $DSROOT/rds-combined-ca-bundle.pem -name RDSGroup
+    $DSROOT/cmdline/executecommand.sh addSslKeyGroup -ca $DSROOT/aws-ca-certs.pem -name RDSGroup
     echo "RDS SSLKeyGroup created." >> $PREP_LOG
 }
 configureJVM() {
