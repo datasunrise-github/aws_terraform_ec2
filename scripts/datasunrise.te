@@ -49,7 +49,7 @@ require {
     class dbus { send_msg };
 	class chr_file { getattr open read };
 	class dir { add_name create getattr open read remove_name rmdir search setattr write };
-	class file { append create execute execute_no_trans getattr ioctl lock open read setattr unlink write };
+	class file { append create execute execute_no_trans getattr ioctl lock open read setattr unlink write map };
 	class filesystem getattr;
 	class lnk_file read;
 	class netlink_socket create;
@@ -107,6 +107,9 @@ allow datasunrise_t user_home_dir_t:file { append create getattr ioctl lock open
 allow datasunrise_t usr_t:file { execute execute_no_trans };
 #============= datasunrise_t ==============
 allow datasunrise_t self:netlink_netfilter_socket create;
+allow datasunrise_t datasunrise_exec_t:file execute_no_trans;
+allow datasunrise_t datasunrise_var_t:file map;
+allow datasunrise_t datasunrise_var_t:lnk_file read;
 #============= groupadd_t ==============
 allow groupadd_t usr_t:fifo_file write;
 #============= rngd_t ==============
