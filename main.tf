@@ -140,7 +140,7 @@ resource "aws_db_instance" "dictionary_db" {
   identifier             = "${var.deployment_name}-dictionary"
   db_name                = var.dictionary_db_name
   engine                 = "Postgres"
-  engine_version         = "15"
+  engine_version         = "17"
   instance_class         = var.dictionary_db_class
   port                   = var.dictionary_db_port
   username               = var.db_username
@@ -150,7 +150,7 @@ resource "aws_db_instance" "dictionary_db" {
   vpc_security_group_ids = [aws_security_group.ds_config_sg.id]
   db_subnet_group_name   = aws_db_subnet_group.ds_db_subnet_group.name
   storage_encrypted      = true
-  storage_type           = "gp2"
+  storage_type           = "gp3"
   skip_final_snapshot    = true
 
   depends_on = [aws_db_subnet_group.ds_db_subnet_group, aws_security_group.ds_config_sg]
@@ -160,7 +160,7 @@ resource "aws_db_instance" "audit_db" {
   identifier             = "${var.deployment_name}-audit"
   db_name                = var.audit_db_name
   engine                 = "Postgres"
-  engine_version         = "15"
+  engine_version         = "17"
   instance_class         = var.audit_db_class
   username               = var.db_username
   password               = var.db_password
@@ -169,7 +169,7 @@ resource "aws_db_instance" "audit_db" {
   vpc_security_group_ids = [aws_security_group.ds_config_sg.id]
   db_subnet_group_name   = aws_db_subnet_group.ds_db_subnet_group.name
   storage_encrypted      = true
-  storage_type           = "gp2"
+  storage_type           = "gp3"
   skip_final_snapshot    = true
 
   depends_on = [aws_db_subnet_group.ds_db_subnet_group, aws_security_group.ds_config_sg]
