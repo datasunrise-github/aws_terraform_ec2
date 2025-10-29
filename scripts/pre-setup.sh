@@ -52,6 +52,7 @@ installProduct() {
     local ORACLE_HOME=/usr/lib/oracle/21/client64/lib
     echo "Setup $AF_GCNF..." >> $PREP_LOG
     echo "DS_SERVER_NAME_PREFIX=ds" | tee -a $AF_GCNF
+    echo "AF_INSTALLATION_TYPE=AWS" | tee -a $AF_GCNF
     echo "AWS_PCODE=\"$AWS_AMI_PCODE\"" | tee -a $AF_GCNF    
     echo "ORACLE_HOME=$ORACLE_HOME" | tee -a $AF_GCNF
     echo "DS configuration file $AF_GCNF" >> $PREP_LOG
