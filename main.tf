@@ -24,7 +24,6 @@ variable "regions_amis" {
 		"eu-west-2" = "ami-0090200cd37cd14cb"
 		"eu-west-1" = "ami-03a8dd4786f5f9283"
 		"ap-northeast-2" = "ami-0eca8dc5d2fed311e"
-		"me-south-1" = "ami-07f62c0217822b072"
 		"ap-northeast-1" = "ami-0735d9632afb71339"
 		"sa-east-1" = "ami-0846b9837b1b8f222"
 		"ca-central-1" = "ami-028885a8a1f75f254"
